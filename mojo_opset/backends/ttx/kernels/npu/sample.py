@@ -21,14 +21,15 @@ def _top_k_sample_kernel(
     stride_out0_k,
     stride_out1_b,
     stride_out1_k,
-    TOP_K: tl.constexpr,
+    B0: tl.constexpr,
 ):
     pid = tl.program_id(0)
 
     row_logits_ptr = sorted_logits_ptr + pid * stride_logits_b
-    offsets = tl.arange(0, TOP_K)
+    offsets = tl.arange(0, B0)
+    mask = offsets < B0
 
-    logits = tl.load(row_logits_ptr + offsets * stride_logits_k)
+    logits = tl.load(row_logits_ptr + offsets * stride_logits_k, mask=mask)
 
     logits_max = tl.max(logits, 0)
     numerator = tl.exp(logits - logits_max)
