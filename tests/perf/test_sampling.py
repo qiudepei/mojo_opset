@@ -4,6 +4,9 @@ import torch
 from mojo_opset import MojoJoinProbRejectSampling
 from mojo_opset import MojoRejectSampling
 from mojo_opset import MojoTopPFilter
+from mojo_opset import MojoTopPSampling
+from mojo_opset import MojoTopKSampling
+
 from tests.utils import auto_switch_platform
 from tests.utils import bypass_not_implemented
 from mojo_opset import MojoTopPSampling

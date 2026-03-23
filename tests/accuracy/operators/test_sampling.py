@@ -33,6 +33,23 @@ def test_topk_sampling(logits, topk, min_tokens_to_keep):
 
 
 @pytest.mark.parametrize(
+    "logits, topk, min_tokens_to_keep",
+    [
+        (torch.randn(20, 151936), 10, 1),
+        (torch.randn(96, 151936), 50, 1),
+        (torch.randn(48, 151936), 100, 1),
+    ],
+)
+@auto_switch_platform()
+@bypass_not_implemented
+def test_topk_sampling(logits, topk, min_tokens_to_keep):
+    top_k_sampling = MojoTopKSampling(top_k=topk, min_tokens_to_keep=min_tokens_to_keep)
+    top_k_sampling_ref = MojoTopKSampling._registry.get("torch")(top_k=topk, min_tokens_to_keep=min_tokens_to_keep)
+
+    top_k_sampling.forward_diff_with(top_k_sampling_ref, logits)
+
+
+@pytest.mark.parametrize(
     "shape, topk, topp, min_tokens_to_keep",
     [((20, 151936), 1000, 0.75, 1)],
 )
