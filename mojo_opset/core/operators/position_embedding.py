@@ -138,9 +138,9 @@ class MojoApplyRoPE(MojoOperator):
         Apply Rotary Position Embedding (RoPE).
 
         Scenario descriptions:
-        1. Varlen prefill: q/k [T, N, D], cos/sin [T, D]
-        2. Padded prefill: q/k [B, S, N, D] or [B, N, S, D], cos/sin [S, D]
-        3. Decode: q/k [B, N, D], cos/sin [B, D]
+        1. Varlen prefill: q/k [T, N, D], cos/sin [T, d]
+        2. Padded prefill: q/k [B, S, N, D] or [B, N, S, D], cos/sin [S, d] or [B, S, d]
+        3. Decode: q/k [B, N, D], cos/sin [B, d]
 
         Args:
             q: Query tensor
@@ -152,6 +152,12 @@ class MojoApplyRoPE(MojoOperator):
         Returns:
             (q_rot, k_rot) with same shape as input
         """
+        assert q.ndim == k.ndim, "q and k must have the same dimension"
+        assert q.ndim == 3 or q.ndim == 4, "q and k must be 3D or 4D"
+        assert cos.shape == sin.shape, "cos and sin must have the same shape"
+        if q.ndim == 3:
+            assert cos.ndim == 2, "rotary position embedding (cos/sin) must be of shape [num_tokens, rope_dim] for varlen prefill or decode"
+        
         if head_first:
             cos = cos.unsqueeze(-3)
             sin = sin.unsqueeze(-3)
